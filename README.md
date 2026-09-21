@@ -20,7 +20,7 @@ Three target distances (A) and three button sizes (W) are used, resulting in a t
 
 Because different devices may display webpages at different physical scales, the experiment begins with a **screen calibration** step. This ensures that the displayed remote control matches the intended physical dimensions.
 
-![Calibration](images/Calibration.jpg)
+<img src="images/Calibration.jpg" width="50%">
 
 The remote control is positioned on the far right side of the screen so that the participant can hold the edge of the tablet with the dominant right hand, simulating a natural remote-control grip. A tablet is used to make the interaction closer to holding and operating a real remote control.
 
@@ -30,7 +30,7 @@ The remote control is positioned on the far right side of the screen so that the
 
 During each trial, the participant starts with the thumb resting on the **OK button** near the center of the remote control. The participant then moves the thumb to press **Number 5** and returns to the OK button before the next trial.
 
-![Demo](images/Demo.jpg)
+<img src="images/Demo.jpg" width="50%">
 
 The 9 distance-and-size conditions are presented in randomized order to reduce learning effects caused by repeatedly performing the same movement.
 
@@ -60,11 +60,13 @@ The difference suggests that smaller buttons and longer thumb travel distances m
 
 ### Fastest and Slowest Conditions
 
-<!-- Replace the image paths below with the final screenshots -->
+<div align="center">
 
 | Fastest Condition: Middle + Large | Slowest Condition: Far + Small |
 | --- | --- |
-| ![Middle Large UI](images/middle-large.jpg) | ![Far Small UI](images/far-small.jpg) |
+| <img src="images/middle-large.jpg" width="100%"> | <img src="images/far-small.jpg" width="100%"> |
+
+</div>
 
 When the two factors are considered separately, the effect of button size is especially noticeable.
 
@@ -82,7 +84,7 @@ The Near and Middle conditions were relatively similar, while the Far condition 
 
 ### Fitts' Law Regression
 
-![Fitts' Law Scatter Plot](images/Fitts_Law_PartII_Scatter_Plot.jpg)
+![Fitts' Law Scatter Plot](images/Fitts_Law_PartII_Scatter_Plot.png)
 
 The scatter plot shows the average Movement Time of the 9 conditions against their Index of Difficulty. The regression result of **R² = 0.839** shows that the condition averages have a strong linear relationship with Fitts' Law.
 
