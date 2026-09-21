@@ -53,7 +53,7 @@ Since repeated thumb movement may cause fatigue, the participant is given a shor
 <br>
 
 <div align="center">
-  <video src="images/Demo.mp4" width="60%"/>
+  <video src="https://github.com/dionsus/HCI-Assignment-1-Empirical-Analysis-of-Fitts-Law/blob/main/images/Demo.mp4" width="60%" controls />
 </div>
 
 <br>
