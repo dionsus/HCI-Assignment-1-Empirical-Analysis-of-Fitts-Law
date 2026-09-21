@@ -34,4 +34,52 @@ Since repeated thumb movement may cause fatigue, the participant is given a shor
 
 ## 4. Result Analysis
 
-*To be completed after the formal experiment.*
+The experiment produced a clear relationship between **Index of Difficulty (ID)** and **Movement Time (MT)**.
+
+Using the average MT of the 9 experimental conditions, the fitted Fitts' Law model is:
+
+\[
+MT = 104.26 + 75.49 \times ID
+\]
+
+with:
+
+\[
+R^2 = 0.839
+\]
+
+This indicates that the experimental results generally follow the expected Fitts' Law trend: as the target becomes smaller or farther away, the movement time increases.
+
+Among the 9 conditions, **Middle + Large** produced the shortest average movement time at approximately **279.9 ms**, while **Far + Small** produced the longest average movement time at approximately **355.5 ms**.
+
+The difference suggests that smaller buttons and longer thumb travel distances make the numeric keypad more difficult to reach under a natural remote-control grip.
+
+### Fastest and Slowest Conditions
+
+<!-- Replace the image paths below with the final screenshots -->
+
+| Fastest Condition: Middle + Large | Slowest Condition: Far + Small |
+| --- | --- |
+| ![Middle Large UI](images/middle-large.png) | ![Far Small UI](images/far-small.png) |
+
+When the two factors are considered separately, the effect of button size is especially noticeable.
+
+- **Large buttons:** 289.3 ms average MT
+- **Medium buttons:** 295.3 ms average MT
+- **Small buttons:** 335.1 ms average MT
+
+For target distance:
+
+- **Near:** 295.9 ms average MT
+- **Middle:** 298.0 ms average MT
+- **Far:** 325.8 ms average MT
+
+The Near and Middle conditions were relatively similar, while the Far condition required noticeably more movement time. This suggests that the effect of distance becomes more apparent when the thumb must stretch farther from its natural resting position.
+
+### Fitts' Law Regression
+
+![Fitts' Law Scatter Plot](images/Fitts_Law_PartII_Scatter_Plot.png)
+
+The scatter plot shows the average Movement Time of the 9 conditions against their Index of Difficulty. The regression result of **R² = 0.839** shows that the condition averages have a strong linear relationship with Fitts' Law.
+
+Since this experiment was conducted with only one participant, the results describe the performance of this specific participant and setup rather than a general conclusion for all remote-control users.
