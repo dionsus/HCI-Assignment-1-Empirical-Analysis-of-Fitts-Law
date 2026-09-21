@@ -16,7 +16,7 @@ Therefore, this experiment uses Fitts' Law to investigate suitable combinations 
 
 The experiment interface is designed based on the physical dimensions of a real TV remote control.
 
-Three target distances (A) and three button sizes (W) are used, resulting in a total of **9 experimental conditions**. Each condition is repeated for **10 trials**, giving **90 trials in total**.
+Three keypad positions (A) and three button sizes (W) are used, resulting in a total of **9 experimental conditions**. Each condition is repeated for **10 trials**, giving **90 trials in total**.
 
 Because different devices may display webpages at different physical scales, the experiment begins with a **screen calibration** step. This ensures that the displayed remote control matches the intended physical dimensions.
 
@@ -76,15 +76,15 @@ The experiment produced a clear relationship between **Index of Difficulty (ID)*
 
 Using the average MT of the 9 experimental conditions, the fitted Fitts' Law model is:
 
-\[
+$$
 MT = 104.26 + 75.49 \times ID
-\]
+$$
 
 with:
 
-\[
+$$
 R^2 = 0.839
-\]
+$$
 
 This indicates that the experimental results generally follow the expected Fitts' Law trend: as the target becomes smaller or farther away, the movement time increases.
 
@@ -94,13 +94,13 @@ The difference suggests that smaller buttons and longer thumb travel distances m
 
 ### Fastest and Slowest Conditions
 
-<div align="center">
+<br>
 
 | Fastest Condition: Middle + Large | Slowest Condition: Far + Small |
 | :---: | :---: |
 | <img src="images/middle-large.jpg"> | <img src="images/far-small.jpg"> |
 
-</div>
+<br>
 
 When the two factors are considered separately, the effect of button size is especially noticeable.
 
@@ -125,5 +125,3 @@ The Near and Middle conditions were relatively similar, while the Far condition 
 <br>
 
 The scatter plot shows the average Movement Time of the 9 conditions against their Index of Difficulty. The regression result of **R² = 0.839** shows that the condition averages have a strong linear relationship with Fitts' Law.
-
-Since this experiment was conducted with only one participant, the results describe the performance of this specific participant and setup rather than a general conclusion for all remote-control users.
