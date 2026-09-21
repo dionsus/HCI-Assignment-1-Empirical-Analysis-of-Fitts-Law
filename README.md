@@ -48,6 +48,16 @@ The 9 distance-and-size conditions are presented in randomized order to reduce l
 
 Since repeated thumb movement may cause fatigue, the participant is given a short rest after every **30 trials**.
 
+### Demo Video
+
+<br>
+
+<div align="center">
+  <video src="Demo.mp4" width="60%"/>
+</div>
+
+<br>
+
 ## 4. Result Analysis
 
 The experiment produced a clear relationship between **Index of Difficulty (ID)** and **Movement Time (MT)**.
