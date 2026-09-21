@@ -20,9 +20,13 @@ Three target distances (A) and three button sizes (W) are used, resulting in a t
 
 Because different devices may display webpages at different physical scales, the experiment begins with a **screen calibration** step. This ensures that the displayed remote control matches the intended physical dimensions.
 
+<br>
+
 <div align="center">
   <img src="images/Calibration.jpg" width="50%">
 </div>
+
+<br>
 
 The remote control is positioned on the far right side of the screen so that the participant can hold the edge of the tablet with the dominant right hand, simulating a natural remote-control grip. A tablet is used to make the interaction closer to holding and operating a real remote control.
 
@@ -32,9 +36,13 @@ The remote control is positioned on the far right side of the screen so that the
 
 During each trial, the participant starts with the thumb resting on the **OK button** near the center of the remote control. The participant then moves the thumb to press **Number 5** and returns to the OK button before the next trial.
 
+<br>
+
 <div align="center">
   <img src="images/Demo.jpg" width="50%">
 </div>
+
+<br>
 
 The 9 distance-and-size conditions are presented in randomized order to reduce learning effects caused by repeatedly performing the same movement.
 
@@ -89,8 +97,10 @@ The Near and Middle conditions were relatively similar, while the Far condition 
 ### Fitts' Law Regression
 
 <div align="center">
-  <img src="images/Fitts_Law_PartII_Scatter_Plot.jpg" width="60%">
+  <img src="images/Fitts_Law_PartII_Scatter_Plot.png" width="60%">
 </div>
+
+<br>
 
 The scatter plot shows the average Movement Time of the 9 conditions against their Index of Difficulty. The regression result of **R² = 0.839** shows that the condition averages have a strong linear relationship with Fitts' Law.
 
