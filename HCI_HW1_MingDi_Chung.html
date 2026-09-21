@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Prevent scaling, fulfill experimental requirements -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fitts' Law Remote Control Experiment</title>
+    <style>
+        /* Base settings & prevent default touch behaviors */
+        * {
+            box-sizing: border-box;
+            touch-action: none; /* Prevent scroll and double-tap zoom */
+            user-select: none;  /* Prevent text selection */
+            -webkit-user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        /* Screen routing system */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        /* Shared UI components */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h1 { color: #333; }
+        p { color: #555; line-height: 1.6; }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:active { background-color: #0056b3; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Calibration screen specific */
+        #ref-bar-container { margin: 30px 0; }
+        #ref-bar {
+            height: 20px;
+            background-color: #FF3B30;
+            margin-bottom: 10px;
+        }
+        .controls { display: flex; gap: 15px; align-items: center; }
+
+        /* Main Experiment Screen */
+        #screen-experiment {
+            background-color: #ffffff; /* Requirement 2: Pure white background */
+        }
+        
+        /* Remote Control Body */
+        #remote-frame {
+            position: absolute;
+            right: 0;
+            bottom: 50%;
+            transform: translateY(50%); /* Centered vertically on the right */
+            background-color: #2c2c2e;
+            border: 2px solid #111;
+            border-radius: 20px;
+            box-shadow: -5px 10px 20px rgba(0,0,0,0.2);
+            /* Width & height dynamically injected by JS based on px_per_cm */
+        }
+
+        /* Numeric Keypad */
+        #keypad-container {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 0px; 
+            border: 1px solid #111;
+            background-color: #111;
+            /* Width, height, and bottom dynamically injected by JS */
+        }
+        .keypad-btn {
+            background-color: #3a3a3c;
+            border: 1px solid #2c2c2e;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .keypad-btn:active { background-color: #555; }
+
+        /* D-Pad and Home Button */
+        #dpad-container {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            /* bottom, width, height injected by JS */
+            background-color: #48484a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #home-btn {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #5ac8fa;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+        #home-btn.active-target {
+            box-shadow: 0 0 10px 2px #5ac8fa;
+        }
+
+        /* Trial Prompts & Info */
+        #trial-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+        #instruction-text {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            color: #555; /* Requirement 2: Subtle dark color */
+            font-size: 24px;
+        }
+
+        /* Warnings */
+        .warning { color: #FF3B30; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. Screen: Start & Check Session -->
+    <div id="screen-start" class="screen active">
+        <div class="container">
+            <h1>Fitts' Law Experiment</h1>
+            <p>Remote Control Target Selection Task</p>
+            <div id="session-check-area">
+                <button id="btn-new-session">Start New Experiment</button>
+                <button id="btn-resume-session" style="display:none; background-color:#34C759;">Resume Previous Experiment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Screen: Physical Calibration -->
+    <div id="screen-calibration" class="screen">
+        <div class="container">
+            <h1>Step 1: Screen Calibration</h1>
+            <p>Please place a physical ruler on the screen.<br>Use the buttons to adjust the red bar below until its <b>physical length on the screen is exactly 10 cm</b>.</p>
+            
+            <div id="ref-bar-container">
+                <div id="ref-bar"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="btn-cal-minus-large">- 10px</button>
+                <button id="btn-cal-minus">- 1px</button>
+                <span id="cal-value-display">Width: 378 px</span>
+                <button id="btn-cal-plus">+ 1px</button>
+                <button id="btn-cal-plus-large">+ 10px</button>
+            </div>
+            
+            <br><br>
+            <button id="btn-finish-calibration">Confirm Calibration</button>
+        </div>
+    </div>
+
+    <!-- 3. Screen: Instructions -->
+    <div id="screen-instructions" class="screen">
+        <div class="container">
+            <h1>Step 2: Instructions</h1>
+            <p>
+                1. Please operate the remote on the right side of the tablet with your <b>right hand</b>.<br>
+                2. Keep your visual attention mainly directed toward the TV (or simulated front view) and use peripheral vision to operate.<br>
+                3. For each trial, return your right thumb to the <b>OK (Home)</b> button.<br>
+                4. When ready, lift your thumb from the OK button and tap Number <b>5</b> as fast as possible.<br>
+                5. Tapping other numbers counts as an Error; tapping empty remote areas counts as a Miss. You must successfully tap 5 to complete the trial.<br>
+                6. There are 90 trials in total, with rest breaks in between.
+            </p>
+            <button id="btn-start-experiment">Start 90 Trials</button>
+        </div>
+    </div>
+
+    <!-- 4. Screen: Main Experiment -->
+    <div id="screen-experiment" class="screen">
+        <div id="trial-info">
+            Trial: <span id="info-trial-num">1</span> / 90 | 
+            Errors: <span id="info-errors">0</span> | 
+            Time: <span id="info-time">00:00</span>
+        </div>
+        <div id="instruction-text">Return thumb to OK.</div>
+        
+        <div id="remote-frame">
+            <!-- Keypad -->
+            <div id="keypad-container">
+                <div class="keypad-btn btn-wrong">1</div>
+                <div class="keypad-btn btn-wrong">2</div>
+                <div class="keypad-btn btn-wrong">3</div>
+                <div class="keypad-btn btn-wrong">4</div>
+                <div id="btn-target-5" class="keypad-btn">5</div>
+                <div class="keypad-btn btn-wrong">6</div>
+                <div class="keypad-btn btn-wrong">7</div>
+                <div class="keypad-btn btn-wrong">8</div>
+                <div class="keypad-btn btn-wrong">9</div>
+                <div class="keypad-btn btn-wrong">*</div>
+                <div class="keypad-btn btn-wrong">0</div>
+                <div class="keypad-btn btn-wrong">#</div>
+            </div>
+            <!-- D-Pad / Home -->
+            <div id="dpad-container">
+                <div id="home-btn">OK</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Screen: Rest -->
+    <div id="screen-rest" class="screen">
+        <div class="container" style="text-align: center;">
+            <h1>Take a Break</h1>
+            <p>You have completed a portion of the experiment. Please relax your right hand.</p>
+            <button id="btn-resume-rest">Resume Experiment</button>
+        </div>
+    </div>
+
+    <!-- 6. Screen: Results -->
+    <div id="screen-results" class="screen">
+        <div class="container">
+            <h1>Experiment Complete</h1>
+            <p>90 of 90 trials completed. Thank you!</p>
+            <button id="btn-download-csv">Download CSV</button>
+            <button id="btn-reset-session" style="background-color: #FF3B30;">Reset / New Session</button>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================================
+           1. Parameters & Variables
+        ========================================================================= */
+        const STORAGE_KEY = 'fitts_remote_data';
+        const TOTAL_TRIALS = 90;
+        
+        // Physical Constants (cm)
+        const REMOTE_W_CM = 4.85;
+        const REMOTE_H_CM = 20.7;
+        const DPAD_D_CM = 2.4;
+        const HOME_BOTTOM_CM = 8.85; // OK center to remote bottom
+        const KEYPAD_W_CM = 4.1;
+
+        // State Variables
+        let pxPerCm = 37.8; // Default, altered by calibration
+        let calibBarPx = 378; // 10cm * 37.8
+        
+        let sessionData = {
+            pxPerCm: 0,
+            trials: [],     // 90 condition settings
+            results: [],    // Completed results
+            elapsedMs: 0    // Total active session time (Requirement 3)
+        };
+        
+        // State Machine: 'WAITING_FOR_HOME', 'ARMED', 'MOVEMENT'
+        let trialState = 'WAITING_FOR_HOME';
+        let currentErrorCount = 0;
+        let mtStartTime = 0;
+
+        // Timer Variables
+        let timerInterval = null;
+        let lastTimeUpdate = 0;
+
+        /* =========================================================================
+           2. DOM Elements & Navigation
+        ========================================================================= */
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        /* =========================================================================
+           3. Timer Logic (Requirement 3)
+        ========================================================================= */
+        function startSessionTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            lastTimeUpdate = performance.now();
+            timerInterval = setInterval(() => {
+                const now = performance.now();
+                sessionData.elapsedMs += (now - lastTimeUpdate);
+                lastTimeUpdate = now;
+                updateTimerDisplay();
+            }, 250); // Updates fast enough for accurate seconds display
+        }
+
+        function stopSessionTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                const now = performance.now();
+                sessionData.elapsedMs += (now - lastTimeUpdate);
+            }
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const ms = sessionData.elapsedMs || 0;
+            const totalSec = Math.floor(ms / 1000);
+            const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            document.getElementById('info-time').innerText = `${m}:${s}`;
+        }
+
+        // Pause timer if user switches tabs/minimizes browser
+        document.addEventListener("visibilitychange", () => {
+            const expScreen = document.getElementById('screen-experiment');
+            if (document.hidden) {
+                if (expScreen.classList.contains('active')) {
+                    stopSessionTimer();
+                    saveSession();
+                }
+            } else {
+                if (expScreen.classList.contains('active')) {
+                    startSessionTimer();
+                }
+            }
+        });
+
+        /* =========================================================================
+           4. Initialization & Session Management
+        ========================================================================= */
+        window.onload = () => {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.results && parsed.results.length < TOTAL_TRIALS) {
+                    document.getElementById('btn-resume-session').style.display = 'inline-block';
+                }
+            }
+        };
+
+        document.getElementById('btn-new-session').addEventListener('click', () => {
+            if (localStorage.getItem(STORAGE_KEY)) {
+                if (!confirm("Start new experiment? This will overwrite your previous incomplete data.")) return;
+            }
+            localStorage.removeItem(STORAGE_KEY);
+            showScreen('screen-calibration');
+        });
+
+        document.getElementById('btn-resume-session').addEventListener('click', () => {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            sessionData = saved;
+            sessionData.elapsedMs = sessionData.elapsedMs || 0; // Fallback for old saves
+            pxPerCm = sessionData.pxPerCm;
+            
+            applyPhysicalDimensions();
+            updateTimerDisplay();
+            
+            let doneCount = sessionData.results.length;
+            if (doneCount >= TOTAL_TRIALS) {
+                showScreen('screen-results');
+            } else if (doneCount === 30 || doneCount === 60) {
+                showScreen('screen-rest');
+            } else {
+                showScreen('screen-experiment');
+                setupTrial(doneCount);
+                startSessionTimer(); // Resume timer
+            }
+        });
+
+        /* =========================================================================
+           5. Physical Screen Calibration
+        ========================================================================= */
+        function updateCalibUI() {
+            document.getElementById('ref-bar').style.width = calibBarPx + 'px';
+            document.getElementById('cal-value-display').innerText = `Width: ${calibBarPx} px`;
+        }
+
+        document.getElementById('btn-cal-minus-large').addEventListener('click', () => { calibBarPx = Math.max(10, calibBarPx - 10); updateCalibUI(); });
+        document.getElementById('btn-cal-minus').addEventListener('click', () => { calibBarPx = Math.max(10, calibBarPx - 1); updateCalibUI(); });
+        document.getElementById('btn-cal-plus').addEventListener('click', () => { calibBarPx += 1; updateCalibUI(); });
+        document.getElementById('btn-cal-plus-large').addEventListener('click', () => { calibBarPx += 10; updateCalibUI(); });
+
+        document.getElementById('btn-finish-calibration').addEventListener('click', () => {
+            pxPerCm = calibBarPx / 10.0;
+            sessionData.pxPerCm = pxPerCm;
+            applyPhysicalDimensions();
+            
+            // Check if screen height is sufficient
+            if (window.innerHeight < (REMOTE_H_CM * pxPerCm)) {
+                alert(`Warning: Screen height (${window.innerHeight}px) is physically smaller than the remote (${Math.round(REMOTE_H_CM * pxPerCm)}px). The remote will be cut off.`);
+            }
+
+            sessionData.trials = generateRandomizedTrials();
+            sessionData.results = [];
+            sessionData.elapsedMs = 0;
+            saveSession();
+            
+            showScreen('screen-instructions');
+        });
+
+        function applyPhysicalDimensions() {
+            // Apply Remote dimensions
+            const remote = document.getElementById('remote-frame');
+            remote.style.width = (REMOTE_W_CM * pxPerCm) + 'px';
+            remote.style.height = (REMOTE_H_CM * pxPerCm) + 'px';
+
+            // Apply Keypad dimensions
+            const keypad = document.getElementById('keypad-container');
+            keypad.style.width = (KEYPAD_W_CM * pxPerCm) + 'px';
+
+            // Apply D-Pad dimensions & position
+            const dpad = document.getElementById('dpad-container');
+            dpad.style.width = (DPAD_D_CM * pxPerCm) + 'px';
+            dpad.style.height = (DPAD_D_CM * pxPerCm) + 'px';
+            dpad.style.bottom = (HOME_BOTTOM_CM * pxPerCm) + 'px'; // Center is at 8.85cm
+        }
+
+        /* =========================================================================
+           6. Condition Generation & Randomization
+        ========================================================================= */
+        function generateRandomizedTrials() {
+            const distances = [4.6, 5.8, 7.0];
+            const sizes = [3.6, 4.8, 6.0];
+            let baseConditions = [];
+            
+            distances.forEach(d => {
+                sizes.forEach(s => {
+                    let levelD = d === 4.6 ? 'Near' : (d === 5.8 ? 'Middle' : 'Far');
+                    let levelS = s === 3.6 ? 'Small' : (s === 4.8 ? 'Medium' : 'Large');
+                    baseConditions.push({ 
+                        distance_cm: d, size_cm: s, 
+                        dist_lvl: levelD, size_lvl: levelS,
+                        cond_id: `${levelD}-${levelS}`
+                    });
+                });
+            });
+
+            let fullSequence = [];
+            let lastCondId = null;
+
+            for (let round = 1; round <= 10; round++) {
+                let block = [];
+                let valid = false;
+                while (!valid) {
+                    block = [...baseConditions].sort(() => Math.random() - 0.5);
+                    if (block[0].cond_id !== lastCondId) {
+                        valid = true;
+                    }
+                }
+                lastCondId = block[8].cond_id;
+                
+                block.forEach(cond => {
+                    fullSequence.push({ ...cond, round: round });
+                });
+            }
+            return fullSequence;
+        }
+
+        /* =========================================================================
+           7. Main Trial Logic & Event Handling
+        ========================================================================= */
+        document.getElementById('btn-start-experiment').addEventListener('click', () => {
+            showScreen('screen-experiment');
+            setupTrial(0);
+            startSessionTimer();
+        });
+
+        document.getElementById('btn-resume-rest').addEventListener('click', () => {
+            showScreen('screen-experiment');
+            setupTrial(sessionData.results.length);
+            startSessionTimer();
+        });
+
+        function setupTrial(index) {
+            if (index >= TOTAL_TRIALS) {
+                stopSessionTimer();
+                showScreen('screen-results');
+                return;
+            }
+
+            const trial = sessionData.trials[index];
+            const keypad = document.getElementById('keypad-container');
+            
+            // Physical Geometry Calculation:
+            // Keypad center Y = 8.85 + distance_cm
+            // Keypad bottom = Keypad center Y - (size_cm / 2)
+            const keypadCenterY_cm = HOME_BOTTOM_CM + trial.distance_cm;
+            const keypadBottom_cm = keypadCenterY_cm - (trial.size_cm / 2);
+            
+            keypad.style.height = (trial.size_cm * pxPerCm) + 'px';
+            keypad.style.bottom = (keypadBottom_cm * pxPerCm) + 'px';
+
+            currentErrorCount = 0;
+            trialState = 'WAITING_FOR_HOME';
+            
+            document.getElementById('info-trial-num').innerText = index + 1;
+            document.getElementById('info-errors').innerText = currentErrorCount;
+            
+            const instText = document.getElementById('instruction-text');
+            instText.innerText = "Return thumb to OK.";
+            instText.style.visibility = 'visible';
+            
+            document.getElementById('home-btn').classList.add('active-target');
+        }
+
+        // Pointer Events
+        const homeBtn = document.getElementById('home-btn');
+        const targetBtn = document.getElementById('btn-target-5');
+        const remoteFrame = document.getElementById('remote-frame');
+        
+        homeBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (trialState === 'WAITING_FOR_HOME') {
+                trialState = 'ARMED';
+                document.getElementById('instruction-text').innerText = "Ready... move to 5";
+                document.getElementById('home-btn').classList.remove('active-target');
+            }
+        });
+
+        document.addEventListener('pointerup', (e) => {
+            if (trialState === 'ARMED') {
+                trialState = 'MOVEMENT';
+                mtStartTime = performance.now();
+                document.getElementById('instruction-text').style.visibility = 'hidden';
+            }
+        });
+
+        targetBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (trialState === 'MOVEMENT') {
+                let mt = performance.now() - mtStartTime;
+                recordTrial(mt);
+            }
+        });
+
+        // Record Errors (Tapping wrong buttons)
+        document.querySelectorAll('.btn-wrong').forEach(btn => {
+            btn.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (trialState === 'MOVEMENT') {
+                    currentErrorCount++;
+                    document.getElementById('info-errors').innerText = currentErrorCount;
+                }
+            });
+        });
+
+        // Record Misses (Tapping empty remote areas)
+        remoteFrame.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (trialState === 'MOVEMENT') {
+                currentErrorCount++;
+                document.getElementById('info-errors').innerText = currentErrorCount;
+            }
+        });
+
+        function recordTrial(mt_ms) {
+            let index = sessionData.results.length;
+            let trial = sessionData.trials[index];
+            
+            // Fitts' Law Calculation
+            // Target 5 is in row 2 of a 4-row grid. 
+            let A_cm = trial.distance_cm + (trial.size_cm / 8); 
+            let W_cm = trial.size_cm / 4; // Single button height
+            
+            let A_px = A_cm * pxPerCm;
+            let W_px = W_cm * pxPerCm;
+            let ID = Math.log2((A_cm / W_cm) + 1);
+
+            sessionData.results.push({
+                trial_number: index + 1,
+                round_number: trial.round,
+                condition_id: trial.cond_id,
+                distance_level: trial.dist_lvl,
+                size_level: trial.size_lvl,
+                home_x_px: (REMOTE_W_CM/2) * pxPerCm,
+                home_y_px: HOME_BOTTOM_CM * pxPerCm,
+                target_x_px: (REMOTE_W_CM/2) * pxPerCm,
+                target_y_px: (HOME_BOTTOM_CM + A_cm) * pxPerCm,
+                A_px: A_px,
+                A_cm: A_cm,
+                W_px: W_px,
+                W_cm: W_cm,
+                ID_bits: ID,
+                MT_ms: mt_ms,
+                target: 5,
+                error_count: currentErrorCount,
+                timestamp: new Date().toISOString()
+            });
+
+            saveSession();
+
+            let nextIndex = index + 1;
+            if (nextIndex === TOTAL_TRIALS) {
+                stopSessionTimer();
+                showScreen('screen-results');
+            } else if (nextIndex === 30 || nextIndex === 60) {
+                stopSessionTimer();
+                showScreen('screen-rest');
+            } else {
+                setupTrial(nextIndex);
+            }
+        }
+
+        function saveSession() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+        }
+
+        /* =========================================================================
+           8. Data Export & Security
+        ========================================================================= */
+        window.addEventListener('beforeunload', (e) => {
+            let done = sessionData.results ? sessionData.results.length : 0;
+            if (done > 0 && done < TOTAL_TRIALS) {
+                stopSessionTimer(); // Ensure latest timer delta is flushed
+                saveSession();      // Save it before unloading
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        document.getElementById('btn-reset-session').addEventListener('click', () => {
+            if (confirm("Are you sure you want to reset? Data in localStorage will be deleted.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
+
+        document.getElementById('btn-download-csv').addEventListener('click', () => {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM
+            
+            // Header
+            const headers = [
+                "trial_number", "round_number", "condition_id", "distance_level", "size_level",
+                "home_x_px", "home_y_px", "target_x_px", "target_y_px", 
+                "A_px", "A_cm", "W_px", "W_cm", "ID_bits", "MT_ms", 
+                "target", "error_count", "timestamp", "px_per_cm",
+                "remote_width_cm", "remote_height_cm", "keypad_width_cm", "keypad_height_cm"
+            ];
+            csvContent += headers.join(",") + "\r\n";
+
+            // Rows
+            sessionData.results.forEach(row => {
+                let r = [
+                    row.trial_number, row.round_number, row.condition_id, row.distance_level, row.size_level,
+                    row.home_x_px.toFixed(2), row.home_y_px.toFixed(2), row.target_x_px.toFixed(2), row.target_y_px.toFixed(2),
+                    row.A_px.toFixed(2), row.A_cm.toFixed(3), row.W_px.toFixed(2), row.W_cm.toFixed(3), row.ID_bits.toFixed(4), row.MT_ms.toFixed(1),
+                    row.target, row.error_count, row.timestamp, sessionData.pxPerCm.toFixed(2),
+                    REMOTE_W_CM, REMOTE_H_CM, KEYPAD_W_CM, sessionData.trials[row.trial_number-1].size_cm
+                ];
+                csvContent += r.join(",") + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            
+            const dateStr = new Date().toISOString().replace(/[:.]/g, "-");
+            link.setAttribute("download", `fitts_remote_${dateStr}.csv`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Initial Calibration UI setup
+        updateCalibUI();
+
+    </script>
+</body>
+</html>
