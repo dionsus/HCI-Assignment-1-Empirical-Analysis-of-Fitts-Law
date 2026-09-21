@@ -67,7 +67,7 @@ The difference suggests that smaller buttons and longer thumb travel distances m
 <div align="center">
 
 | Fastest Condition: Middle + Large | Slowest Condition: Far + Small |
-| --- | --- |
+| :---: | :---: |
 | <img src="images/middle-large.jpg"> | <img src="images/far-small.jpg"> |
 
 </div>
@@ -88,7 +88,9 @@ The Near and Middle conditions were relatively similar, while the Far condition 
 
 ### Fitts' Law Regression
 
-![Fitts' Law Scatter Plot](images/Fitts_Law_PartII_Scatter_Plot.png)
+<div align="center">
+  <img src="images/Fitts_Law_PartII_Scatter_Plot.jpg" width="60%">
+</div>
 
 The scatter plot shows the average Movement Time of the 9 conditions against their Index of Difficulty. The regression result of **R² = 0.839** shows that the condition averages have a strong linear relationship with Fitts' Law.
 
