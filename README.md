@@ -94,13 +94,13 @@ The difference suggests that smaller buttons and longer thumb travel distances m
 
 ### Fastest and Slowest Conditions
 
-<br>
-
+<div align="center">
+  
 | Fastest Condition: Middle + Large | Slowest Condition: Far + Small |
 | :---: | :---: |
 | <img src="images/middle-large.jpg"> | <img src="images/far-small.jpg"> |
 
-<br>
+</div>
 
 When the two factors are considered separately, the effect of button size is especially noticeable.
 
