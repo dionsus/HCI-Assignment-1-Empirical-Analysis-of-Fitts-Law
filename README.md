@@ -46,7 +46,16 @@ Since repeated thumb movement may cause fatigue, the participant is given a shor
 
 ### Website Preview
 
-[Open the Fitts' Law Remote Control Experiment](https://dionsus.github.io/HCI-Assignment-1-Empirical-Analysis-of-Fitts-Law/HCI_HW1_MingDi_Chung.html)
+<br>
+
+<div align="center">
+  <a href="https://dionsus.github.io/HCI-Assignment-1-Empirical-Analysis-of-Fitts-Law/HCI_HW1_MingDi_Chung.html" target="_blank">
+    <img src="https://img.shields.io/badge/Open_Fitts'_Law_Experiment-GitHub_Pages-2EA44F?style=for-the-badge&logo=github&logoColor=white" alt="Open Experiment" />
+  </a>
+  <p><a href="https://dionsus.github.io/HCI-Assignment-1-Empirical-Analysis-of-Fitts-Law/HCI_HW1_MingDi_Chung.html" target="_blank">https://dionsus.github.io/HCI-Assignment-1-Empirical-Analysis-of-Fitts-Law/HCI_HW1_MingDi_Chung.html</a></p>
+</div>
+
+<br>
 
 ### Demo Video
 
