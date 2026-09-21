@@ -53,7 +53,7 @@ Since repeated thumb movement may cause fatigue, the participant is given a shor
 <br>
 
 <div align="center">
-  <video src="Demo.mp4" width="60%"/>
+  <video src="images/Demo.mp4" width="60%"/>
 </div>
 
 <br>
